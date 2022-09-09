@@ -1,4 +1,4 @@
-package com.itheima.test;
+package com.yufish.test;
 
 import org.junit.jupiter.api.Test;
 
