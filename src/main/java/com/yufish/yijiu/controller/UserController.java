@@ -67,7 +67,7 @@ public class UserController {
 
     /**
      * 移动端用户登录
-     * @param map
+     * @param map 用来接收请求参数，这里分别是手机号和验证码
      * @param session
      * @return
      */
@@ -113,4 +113,15 @@ public class UserController {
         return R.error("登录失败");
     }
 
+    /**
+     * 退出登录
+     * @param session 获取用户登陆信息
+     * @return 返回自定义状态类
+     */
+    @PostMapping("/loginout")
+    @ApiOperation(value = "登出接口")
+    public R<String> loginout(HttpSession session){
+        session.removeAttribute("user");
+        return R.success("登出成功");
+    }
 }

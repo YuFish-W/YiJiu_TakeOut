@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+import java.util.List;
+
 /**
  * 订单
  */
@@ -35,15 +38,16 @@ public class OrderController {
 
     /**
      * 分页查询订单，number表示订单号，另外两个是时间范围
-     * @param page
-     * @param pageSize
-     * @param number
-     * @param beginTime
-     * @param endTime
-     * @return
+     *
+     * @param page      第几页
+     * @param pageSize  每页多少条数据
+     * @param number    表示订单号
+     * @param beginTime 订单开始时间，这段时间内的订单
+     * @param endTime   订单结束时间
+     * @return 返回分页对象Page
      */
     @GetMapping("/page")
-    public R<Page> page(int page, int pageSize, Long number, String beginTime, String endTime) {
+    public R<Page<Orders>> page(int page, int pageSize, Long number, String beginTime, String endTime) {
         //分页构造器对象
         Page<Orders> pageInfo = new Page<>(page, pageSize);
 
@@ -60,8 +64,24 @@ public class OrderController {
     }
 
     @PutMapping
-    public R<String > modifyStatus(@RequestBody Orders orders){
+    public R<String> modifyStatus(@RequestBody Orders orders) {
         orderService.updateById(orders);
         return R.success("状态修改成功");
+    }
+
+    @GetMapping("/userPage")
+    public R<Page<Orders>> userPage(int page, int pageSize, HttpSession session) {
+        //获取当前用户id
+        Long userId = (Long) session.getAttribute("user");
+        //分页构造器对象
+        Page<Orders> pageInfo = new Page<>(page, pageSize);
+
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Orders::getUserId, userId);
+
+
+        orderService.page(pageInfo, queryWrapper);
+
+        return R.success(pageInfo);
     }
 }
