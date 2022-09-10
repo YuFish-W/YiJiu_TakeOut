@@ -3,7 +3,7 @@ server:
 spring:
   application:
     #应用的名称，可选
-    name: reggie_take_out
+    name: YiJiu_TakeOut
   shardingsphere:
     datasource:
       names:
@@ -12,14 +12,14 @@ spring:
       master:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://192.168.200.129:3307/reggie?characterEncoding=utf-8
+        url: jdbc:mysql://192.168.200.129:3307/YiJiu?characterEncoding=utf-8
         username: root
         password: yyds
       # 从数据源
       slave:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://192.168.200.129:3308/reggie?characterEncoding=utf-8
+        url: jdbc:mysql://192.168.200.129:3308/YiJiu?characterEncoding=utf-8
         username: root
         password: yyds
     masterslave:
@@ -52,5 +52,5 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
-reggie:
+YiJiu:
   path: E:\Java\myproject\img\YiJiu_TakeOut\

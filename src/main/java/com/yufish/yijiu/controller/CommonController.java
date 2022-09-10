@@ -21,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 public class CommonController {
 
-    @Value("${reggie.path}")
+    @Value("${YiJiu.path}")
     private String basePath;
 
     /**
