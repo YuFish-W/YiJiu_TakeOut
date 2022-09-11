@@ -31,6 +31,7 @@ public class LoginCheckFilter implements Filter{
         //1、获取本次请求的URI
         String requestURI = request.getRequestURI();// /backend/index.html
 
+        //获取本次发出请求的网页网址，请求头中的`Referer`字段就是，便于检查是前端还是后端的请求，分开检查登录情况
         String referer = request.getHeader("Referer");
 
 
@@ -73,7 +74,7 @@ public class LoginCheckFilter implements Filter{
         }
 
         //4-2、判断登录状态，如果已登录，则直接放行
-        if(request.getSession().getAttribute("user") != null ){
+        if(request.getSession().getAttribute("user") != null && Pattern.matches("http://.*:8080/front.*",referer)){
             log.info("用户已登录，用户id为：{}",request.getSession().getAttribute("user"));
 
             Long userId = (Long) request.getSession().getAttribute("user");
