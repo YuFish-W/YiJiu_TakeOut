@@ -11,10 +11,13 @@ import com.yufish.yijiu.service.CategoryService;
 import com.yufish.yijiu.service.DishFlavorService;
 import com.yufish.yijiu.service.DishService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,11 +43,12 @@ public class DishController {
 
     /**
      * 新增菜品
+     *
      * @param dishDto
      * @return
      */
     @PostMapping
-    public R<String> save(@RequestBody DishDto dishDto){
+    public R<String> save(@RequestBody DishDto dishDto) {
         log.info(dishDto.toString());
 
         dishService.saveWithFlavor(dishDto);
@@ -62,43 +66,44 @@ public class DishController {
 
     /**
      * 菜品信息分页查询
+     *
      * @param page
      * @param pageSize
      * @param name
      * @return
      */
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize,String name){
+    public R<Page> page(int page, int pageSize, String name) {
 
         //构造分页构造器对象
-        Page<Dish> pageInfo = new Page<>(page,pageSize);
+        Page<Dish> pageInfo = new Page<>(page, pageSize);
         Page<DishDto> dishDtoPage = new Page<>();
 
         //条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         //添加过滤条件
-        queryWrapper.like(name != null,Dish::getName,name);
+        queryWrapper.like(name != null, Dish::getName, name);
         //添加排序条件
         queryWrapper.orderByDesc(Dish::getUpdateTime);
 
         //执行分页查询
-        dishService.page(pageInfo,queryWrapper);
+        dishService.page(pageInfo, queryWrapper);
 
         //对象拷贝
-        BeanUtils.copyProperties(pageInfo,dishDtoPage,"records");
+        BeanUtils.copyProperties(pageInfo, dishDtoPage, "records");
 
         List<Dish> records = pageInfo.getRecords();
 
         List<DishDto> list = records.stream().map((item) -> {
             DishDto dishDto = new DishDto();
 
-            BeanUtils.copyProperties(item,dishDto);
+            BeanUtils.copyProperties(item, dishDto);
 
             Long categoryId = item.getCategoryId();//分类id
             //根据id查询分类对象
             Category category = categoryService.getById(categoryId);
 
-            if(category != null){
+            if (category != null) {
                 String categoryName = category.getName();
                 dishDto.setCategoryName(categoryName);
             }
@@ -112,11 +117,12 @@ public class DishController {
 
     /**
      * 根据id查询菜品信息和对应的口味信息
+     *
      * @param id
      * @return
      */
     @GetMapping("/{id}")
-    public R<DishDto> get(@PathVariable Long id){
+    public R<DishDto> get(@PathVariable Long id) {
 
         DishDto dishDto = dishService.getByIdWithFlavor(id);
 
@@ -125,11 +131,12 @@ public class DishController {
 
     /**
      * 修改菜品
+     *
      * @param dishDto
      * @return
      */
     @PutMapping
-    public R<String> update(@RequestBody DishDto dishDto){
+    public R<String> update(@RequestBody DishDto dishDto) {
         log.info(dishDto.toString());
 
         dishService.updateWithFlavor(dishDto);
@@ -147,6 +154,7 @@ public class DishController {
 
     /**
      * 根据条件查询对应的菜品数据
+     *
      * @param dish
      * @return
      */
@@ -165,9 +173,8 @@ public class DishController {
 
         return R.success(list);
     }*/
-
     @GetMapping("/list")
-    public R<List<DishDto>> list(Dish dish){
+    public R<List<DishDto>> list(Dish dish) {
         List<DishDto> dishDtoList = null;
 
         //动态构造key
@@ -176,16 +183,16 @@ public class DishController {
         //先从redis中获取缓存数据
         dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
 
-        if(dishDtoList != null){
+        if (dishDtoList != null) {
             //如果存在，直接返回，无需查询数据库
             return R.success(dishDtoList);
         }
 
         //构造查询条件
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(dish.getCategoryId() != null ,Dish::getCategoryId,dish.getCategoryId());
+        queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId());
         //添加条件，查询状态为1（起售状态）的菜品
-        queryWrapper.eq(Dish::getStatus,1);
+        queryWrapper.eq(Dish::getStatus, 1);
 
         //添加排序条件
         queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
@@ -195,13 +202,13 @@ public class DishController {
         dishDtoList = list.stream().map((item) -> {
             DishDto dishDto = new DishDto();
 
-            BeanUtils.copyProperties(item,dishDto);
+            BeanUtils.copyProperties(item, dishDto);
 
             Long categoryId = item.getCategoryId();//分类id
             //根据id查询分类对象
             Category category = categoryService.getById(categoryId);
 
-            if(category != null){
+            if (category != null) {
                 String categoryName = category.getName();
                 dishDto.setCategoryName(categoryName);
             }
@@ -209,7 +216,7 @@ public class DishController {
             //当前菜品的id
             Long dishId = item.getId();
             LambdaQueryWrapper<DishFlavor> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(DishFlavor::getDishId,dishId);
+            lambdaQueryWrapper.eq(DishFlavor::getDishId, dishId);
             //SQL:select * from dish_flavor where dish_id = ?
             List<DishFlavor> dishFlavorList = dishFlavorService.list(lambdaQueryWrapper);
             dishDto.setFlavors(dishFlavorList);
@@ -217,9 +224,70 @@ public class DishController {
         }).collect(Collectors.toList());
 
         //如果不存在，需要查询数据库，将查询到的菜品数据缓存到Redis
-        redisTemplate.opsForValue().set(key,dishDtoList,60, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, dishDtoList, 60, TimeUnit.MINUTES);
 
         return R.success(dishDtoList);
     }
 
+
+    /**
+     * 根据传过来的菜品id和状态，将对应菜品状态码修改
+     *
+     * @param code 状态码
+     * @param ids  菜品id
+     * @return
+     */
+    @PostMapping("/status/{code}")
+    public R<String> updateStatus(@PathVariable("code") Integer code, @RequestParam("ids") List<Long> ids) {
+//        String[] split = ids.split(",");
+        for (Long id : ids) {
+            Dish dish = dishService.getById(id);
+
+            if (dish == null) {
+                return R.error("菜品id= " + id + " 不存在");
+            }
+
+            dish.setStatus(code);
+            //dish菜品类是有乐观锁的，如果两个人同时修改菜品的状态，可能会有冲突修改失败
+            //也有可能被别人删除了
+            boolean res = dishService.updateById(dish);
+            while (!res) {
+                dish = dishService.getById(id);
+                if (dish == null) {
+                    return R.error("菜品id= " + id + " 不存在");
+                }
+                dish.setStatus(code);
+                res = dishService.updateById(dish);
+            }
+        }
+        return R.success("状态修改成功");
+    }
+
+    /**
+     * 根据id删除菜品
+     *
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public R<String> deleteById(@RequestParam List<Long> ids) {
+//        String[] split = ids.split(",");
+        for (Long id : ids) {
+            Dish dish = dishService.getById(id);
+
+            if (dish == null) {
+                return R.error("菜品id= " + id + " 不存在");
+            }
+
+            if (dish.getStatus() == 1) {
+                return R.error(dish.getName() + " 正在销售，无法删除");
+            }
+
+            boolean res = dishService.removeById(id);
+            if (!res) {
+                return R.error("菜品id= " + id + " 不存在");
+            }
+        }
+        return R.success("删除成功");
+    }
 }
