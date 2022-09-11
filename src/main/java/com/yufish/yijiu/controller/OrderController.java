@@ -91,6 +91,9 @@ public class OrderController {
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Orders::getUserId, userId);
 
+        //订单按照时间顺序，倒序排列
+        queryWrapper.orderByDesc(Orders::getOrderTime);
+
 
         orderService.page(pageInfo, queryWrapper);
 
