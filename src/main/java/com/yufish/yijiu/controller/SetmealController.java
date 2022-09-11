@@ -154,19 +154,31 @@ public class SetmealController {
         return R.success(list);
     }
 
+    /**
+     * 根据传过来的状态码以及套餐Id集合，修改这些套餐的状态
+     * @param status 状态
+     * @param ids 套餐id集合
+     * @return
+     */
     @PostMapping("/status/{status}")
-    public R<String> status(@PathVariable("status") Integer status, @RequestParam("ids") Long id){
-        Setmeal setmeal = new Setmeal();
-        setmeal.setId(id);
-        setmeal.setStatus(status);
-        boolean res = setmealService.updateById(setmeal);
-        if (res){
-            return R.success("状态修改成功");
-        }else {
-            return R.error("状态修改失败");
+    public R<String> status(@PathVariable("status") Integer status, @RequestParam("ids") List<Long> ids){
+        for (Long id : ids) {
+            Setmeal setmeal = new Setmeal();
+            setmeal.setId(id);
+            setmeal.setStatus(status);
+            boolean res = setmealService.updateById(setmeal);
+            if (!res){
+                return R.error("状态修改失败");
+            }
         }
+        return R.success("状态修改成功");
     }
 
+    /**
+     * 根据id查找套餐以及该套餐下面的菜品
+     * @param id
+     * @return
+     */
     @GetMapping("{id}")
     public R<SetmealDto> get(@PathVariable("id") Long id){
         SetmealDto setmealDto = setmealService.getWithDish(id);
