@@ -2,6 +2,7 @@ package com.yufish.yijiu.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -48,6 +49,12 @@ public class Dish implements Serializable {
 
     //顺序
     private Integer sort;
+
+    //剩余分数
+    private Integer quantity;
+
+    @Version
+    private Integer version;
 
 
     @TableField(fill = FieldFill.INSERT)

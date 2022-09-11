@@ -35,8 +35,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     @Autowired
     private OrderDetailService orderDetailService;
 
+    @Autowired
+    private DishService dishService;
+
+
     /**
-     * 用户下单
+     * 用户下单，如果当前订单需要的菜品中有数量不足的，抛出异常，数据不提交
      * @param orders
      */
     @Transactional
@@ -63,7 +67,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             throw new CustomException("用户地址信息有误，不能下单");
         }
 
-        long orderId = IdWorker.getId();//订单号
+        long orderId = IdWorker.getId();//订单号，表中的number字段，同时将主键设置成和它一样的
 
         AtomicInteger amount = new AtomicInteger(0);
 
@@ -85,6 +89,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         orders.setId(orderId);
         orders.setOrderTime(LocalDateTime.now());
         orders.setCheckoutTime(LocalDateTime.now());
+        //状态2表示 正在派送
         orders.setStatus(2);
         orders.setAmount(new BigDecimal(amount.get()));//总金额
         orders.setUserId(userId);
@@ -100,7 +105,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         this.save(orders);
 
         //向订单明细表插入数据，多条数据
-        orderDetailService.saveBatch(orderDetails);
+        OrderDetailService.Status status = orderDetailService.MySaveBatch(orderDetails);
+        if (!status.isRes()){
+            Long dishId = status.getDishId();
+            String name = dishService.getById(dishId).getName();
+            throw new CustomException(name + " 数量不足，请换一盘菜");
+        }
 
         //清空购物车数据
         shoppingCartService.remove(wrapper);
