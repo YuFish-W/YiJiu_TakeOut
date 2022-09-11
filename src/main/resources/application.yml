@@ -37,9 +37,16 @@ spring:
   main:
     allow-bean-definition-overriding: true
   redis:
-    host: 192.168.200.129
-    port: 6379
-#    password: root@123456
+    cluster:
+      max-redirects: 3
+      nodes: 192.168.200.129:6381,192.168.200.129:6382,192.168.200.129:6383,192.168.200.129:6384,192.168.200.129:6385,192.168.200.129:6386
+    jedis:
+      pool: #这里这些配置全都是默认值
+        max-active: 8
+        max-idle: 8
+        max-wait: -1
+        min-idle: 0
+    #    password: root@123456
     database: 0
   cache:
     redis:

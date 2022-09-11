@@ -63,12 +63,24 @@ public class OrderController {
         return R.success(pageInfo);
     }
 
+    /**
+     * 根据传入的状态码和订单id修改订单状态
+     * @param orders
+     * @return
+     */
     @PutMapping
     public R<String> modifyStatus(@RequestBody Orders orders) {
         orderService.updateById(orders);
         return R.success("状态修改成功");
     }
 
+    /**
+     * 获取当前用户的订单记录
+     * @param page 第几页
+     * @param pageSize 分页大小
+     * @param session 得到当前用户id
+     * @return 返回R对象
+     */
     @GetMapping("/userPage")
     public R<Page<Orders>> userPage(int page, int pageSize, HttpSession session) {
         //获取当前用户id
