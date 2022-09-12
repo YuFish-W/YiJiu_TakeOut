@@ -46,6 +46,12 @@ public class UserController {
 
         String  email = (String)map.get("email");
         if(StringUtils.isNotEmpty(email)){
+            //从redis中取出验证码，看是否存在
+            Object codeInRedis = redisTemplate.opsForValue().get(email);
+            if (codeInRedis!=null){
+                Long expire = redisTemplate.opsForValue().getOperations().getExpire(email);
+                return R.error("验证码已经发送，" + expire + "秒后可再次请求");
+            }
             //生成随机的4位验证码
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
             log.info("code={}",code);
@@ -59,7 +65,7 @@ public class UserController {
 
             //将生成的验证码缓存到Redis中，并且设置有效期为5分钟
 //            redisTemplate.opsForValue().set(phone,code,5,TimeUnit.MINUTES);
-            redisTemplate.opsForValue().set(email,code,5,TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(email,code,60,TimeUnit.SECONDS);
 
             return R.success("手机验证码短信发送成功");
         }

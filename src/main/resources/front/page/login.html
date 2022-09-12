@@ -35,7 +35,7 @@
     </div>
 <!--    <div class="divMsg" v-if="msgFlag">手机号输入不正确，请重新输入</div>-->
     <!--自己手动加的空行-->
-    <br><br><br><br><br>
+    <br><br><br><br><br><br>
     <div class="divMsg" v-if="msgFlag">邮箱输入不正确，请重新输入</div>
 
     <el-button type="primary" :class="{btnSubmit:1===1,btnNoPhone:!form.phone,btnPhone:form.phone}" @click="btnLogin">
@@ -73,7 +73,7 @@
         mounted() {
         },
         methods: {
-            getCode() {
+            async getCode() {
                 this.form.code = ''
                 //检查手机号是否正确，这里改成发送邮箱
                 // const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
@@ -81,7 +81,10 @@
                 if (regex.test(this.form.email)) {
                     this.msgFlag = false
                     //this.form.code = (Math.random()*1000000).toFixed(0)
-                    sendMsgApi({email: this.form.email})
+                    const res = await sendMsgApi({email: this.form.email})
+                    if (res.code === 0){
+                        this.$notify({type: 'warning', message: res.msg});
+                    }
                 } else {
                     this.msgFlag = true
                 }
