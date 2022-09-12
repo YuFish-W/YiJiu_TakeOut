@@ -28,7 +28,7 @@ public class OrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Order
     /**
      * 保存多个订单详情，保存的同时检查当前需要的菜品数量是否足够，且用乐观锁保证不会发生超卖
      * @param entityList 订单集合
-     * @return
+     * @return 返回一个自定义类Status
      */
     @Override
     public Status MySaveBatch(Collection<OrderDetail> entityList) {
