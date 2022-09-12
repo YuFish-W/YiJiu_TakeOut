@@ -87,22 +87,34 @@
                 }
             },
             async btnLogin() {
-                if (this.form.phone && this.form.code && this.form.email) {
-                    const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
-                    
-                    this.loading = true
-                    const res = await loginApi(this.form)
-                    this.loading = false
-                    if (res.code === 1) {
-                        sessionStorage.setItem("userPhone", this.form.phone)
-                        window.requestAnimationFrame(() => {
-                            window.location.href = '/front/index.html'
-                        })
+                if (this.form.email){
+                    const regex = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.(com|cn|net)$/;
+                    if (!regex.test(this.form.email)) {
+                        this.$notify({type: 'warning', message: '请输入正确的邮箱'});
+                    }else if (this.form.phone && this.form.code ) {
+                        const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
+                        if (regex.test(this.form.phone)) {
+                            this.msgFlag = false
+                            this.loading = true
+                            const res = await loginApi(this.form)
+                            this.loading = false
+                            if (res.code === 1) {
+                                sessionStorage.setItem("userPhone", this.form.phone)
+                                window.requestAnimationFrame(() => {
+                                    window.location.href = '/front/index.html'
+                                })
+                            } else {
+                                this.$notify({type: 'warning', message: res.msg});
+                            }
+                        }else {
+                            this.$notify({type: 'warning', message: '请输入正确的手机号码'});
+                        }
+
                     } else {
-                        this.$notify({type: 'warning', message: res.msg});
+                        this.$notify({type: 'warning', message: '请输入手机号码或验证码'});
                     }
-                } else {
-                    this.$notify({type: 'warning', message: '请输入手机号码和邮箱'});
+                }else {
+                    this.$notify({type: 'warning', message: '请输入邮箱'});
                 }
             }
         }
