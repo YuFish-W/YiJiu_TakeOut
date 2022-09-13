@@ -50,7 +50,7 @@ public class EmailUtils {
             message.setRecipient(Message.RecipientType.TO, to);
 
             //设置邮件主题
-            message.setSubject("测试邮件");
+            message.setSubject("一酒馆餐厅验证码");
             //设置消息日期
             message.setSentDate(new Date());
 
