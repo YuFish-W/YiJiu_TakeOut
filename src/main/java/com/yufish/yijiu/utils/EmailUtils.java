@@ -27,7 +27,7 @@ public class EmailUtils {
             props.put("mail.user", "1219471845@qq.com");
             //此处的密码就是前面说的16位STMP口令
             //获取口令
-            props.put("mail.password", "robksqrnzgilfghh");
+            props.put("mail.password", "bdtbqcfjarghgife");
             //构建授权信息，用于进行SMTP进行身份验证
             Authenticator authenticator = new Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
