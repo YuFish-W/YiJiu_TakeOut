@@ -66,12 +66,12 @@ public class CommonController {
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response){
 
-        try {
-            //输入流，通过输入流读取文件内容
+        try
+        (//输入流，通过输入流读取文件内容
             FileInputStream fileInputStream = new FileInputStream(new File(basePath + name));
-
             //输出流，通过输出流将文件写回浏览器
-            ServletOutputStream outputStream = response.getOutputStream();
+            ServletOutputStream outputStream = response.getOutputStream()
+        ) {
 
             response.setContentType("image/jpeg");
 
@@ -81,10 +81,6 @@ public class CommonController {
                 outputStream.write(bytes,0,len);
                 outputStream.flush();
             }
-
-            //关闭资源
-            outputStream.close();
-            fileInputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
