@@ -12,6 +12,7 @@ spring:
       master:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
+        #url: jdbc:mysql://192.168.200.129:3307/YiJiu?characterEncoding=utf-8
         url: jdbc:mysql://129.211.220.154:3307/YiJiu?characterEncoding=utf-8
         username: root
         password: yyds
@@ -19,6 +20,7 @@ spring:
       slave:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
+        #url: jdbc:mysql://192.168.200.129:3308/YiJiu?characterEncoding=utf-8
         url: jdbc:mysql://129.211.220.154:3308/YiJiu?characterEncoding=utf-8
         username: root
         password: yyds

@@ -25,10 +25,10 @@ function orderPagingApi(data) {
 }
 
 //再来一单
-function orderAgainApi(data) {
-  return $axios({
-      'url': '/order/again',
-      'method': 'post',
-      data
-  })
-}
+// function orderAgainApi(data) {
+//   return $axios({
+//       'url': '/order/again',
+//       'method': 'post',
+//       data
+//   })
+// }
