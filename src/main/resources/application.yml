@@ -67,4 +67,4 @@ mybatis-plus:
       id-type: ASSIGN_ID
 YiJiu:
   #path: /opt/git-space/YiJiu_TakeOut/YiJiu_TakeOutImg/
-  path: /myservice/YiJiu_TakeOut/YiJiu_TakeOutImg/
+  path: \myservice\YiJiu_TakeOut\YiJiu_TakeOutImg\
