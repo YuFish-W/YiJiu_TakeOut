@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     #应用的名称，可选
@@ -36,6 +36,11 @@ spring:
         show: true #开启SQL显示，默认false
   main:
     allow-bean-definition-overriding: true
+#  redis:
+#    host: 192.168.200.129
+#    port: 6379
+#    #    password: root@123456
+#    database: 0
   redis:
     cluster:
       max-redirects: 3

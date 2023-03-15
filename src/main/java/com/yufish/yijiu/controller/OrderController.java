@@ -2,7 +2,7 @@ package com.yufish.yijiu.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yufish.yijiu.common.R;
+import com.yufish.yijiu.common.Result;
 import com.yufish.yijiu.entity.Orders;
 import com.yufish.yijiu.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.List;
 
 /**
  * 订单
@@ -30,10 +29,10 @@ public class OrderController {
      * @return
      */
     @PostMapping("/submit")
-    public R<String> submit(@RequestBody Orders orders) {
+    public Result<String> submit(@RequestBody Orders orders) {
         log.info("订单数据：{}", orders);
         orderService.submit(orders);
-        return R.success("下单成功");
+        return Result.success("下单成功");
     }
 
     /**
@@ -47,7 +46,7 @@ public class OrderController {
      * @return 返回分页对象Page
      */
     @GetMapping("/page")
-    public R<Page<Orders>> page(int page, int pageSize, Long number, String beginTime, String endTime) {
+    public Result<Page<Orders>> page(int page, int pageSize, Long number, String beginTime, String endTime) {
         //分页构造器对象
         Page<Orders> pageInfo = new Page<>(page, pageSize);
 
@@ -60,7 +59,7 @@ public class OrderController {
 
         orderService.page(pageInfo, queryWrapper);
 
-        return R.success(pageInfo);
+        return Result.success(pageInfo);
     }
 
     /**
@@ -69,9 +68,9 @@ public class OrderController {
      * @return
      */
     @PutMapping
-    public R<String> modifyStatus(@RequestBody Orders orders) {
+    public Result<String> modifyStatus(@RequestBody Orders orders) {
         orderService.updateById(orders);
-        return R.success("状态修改成功");
+        return Result.success("状态修改成功");
     }
 
     /**
@@ -82,7 +81,7 @@ public class OrderController {
      * @return 返回R对象
      */
     @GetMapping("/userPage")
-    public R<Page<Orders>> userPage(int page, int pageSize, HttpSession session) {
+    public Result<Page<Orders>> userPage(int page, int pageSize, HttpSession session) {
         //获取当前用户id
         Long userId = (Long) session.getAttribute("user");
         //分页构造器对象
@@ -97,6 +96,6 @@ public class OrderController {
 
         orderService.page(pageInfo, queryWrapper);
 
-        return R.success(pageInfo);
+        return Result.success(pageInfo);
     }
 }

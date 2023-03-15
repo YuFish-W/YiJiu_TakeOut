@@ -2,7 +2,7 @@ package com.yufish.yijiu.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yufish.yijiu.common.R;
+import com.yufish.yijiu.common.Result;
 import com.yufish.yijiu.dto.DishDto;
 import com.yufish.yijiu.entity.Category;
 import com.yufish.yijiu.entity.Dish;
@@ -11,13 +11,11 @@ import com.yufish.yijiu.service.CategoryService;
 import com.yufish.yijiu.service.DishFlavorService;
 import com.yufish.yijiu.service.DishService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -48,7 +46,7 @@ public class DishController {
      * @return
      */
     @PostMapping
-    public R<String> save(@RequestBody DishDto dishDto) {
+    public Result<String> save(@RequestBody DishDto dishDto) {
         log.info(dishDto.toString());
 
         dishService.saveWithFlavor(dishDto);
@@ -61,7 +59,7 @@ public class DishController {
         String key = "dish_" + dishDto.getCategoryId() + "_1";
         redisTemplate.delete(key);
 
-        return R.success("新增菜品成功");
+        return Result.success("新增菜品成功");
     }
 
     /**
@@ -73,7 +71,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/page")
-    public R<Page> page(int page, int pageSize, String name) {
+    public Result<Page> page(int page, int pageSize, String name) {
 
         //构造分页构造器对象
         Page<Dish> pageInfo = new Page<>(page, pageSize);
@@ -112,7 +110,7 @@ public class DishController {
 
         dishDtoPage.setRecords(list);
 
-        return R.success(dishDtoPage);
+        return Result.success(dishDtoPage);
     }
 
     /**
@@ -122,11 +120,11 @@ public class DishController {
      * @return
      */
     @GetMapping("/{id}")
-    public R<DishDto> get(@PathVariable Long id) {
+    public Result<DishDto> get(@PathVariable Long id) {
 
         DishDto dishDto = dishService.getByIdWithFlavor(id);
 
-        return R.success(dishDto);
+        return Result.success(dishDto);
     }
 
     /**
@@ -136,7 +134,7 @@ public class DishController {
      * @return
      */
     @PutMapping
-    public R<String> update(@RequestBody DishDto dishDto) {
+    public Result<String> update(@RequestBody DishDto dishDto) {
         log.info(dishDto.toString());
 
         dishService.updateWithFlavor(dishDto);
@@ -149,7 +147,7 @@ public class DishController {
         String key = "dish_" + dishDto.getCategoryId() + "_1";
         redisTemplate.delete(key);
 
-        return R.success("修改菜品成功");
+        return Result.success("修改菜品成功");
     }
 
     /**
@@ -174,7 +172,7 @@ public class DishController {
         return R.success(list);
     }*/
     @GetMapping("/list")
-    public R<List<DishDto>> list(Dish dish) {
+    public Result<List<DishDto>> list(Dish dish) {
         List<DishDto> dishDtoList = null;
 
         //动态构造key
@@ -185,7 +183,7 @@ public class DishController {
 
         if (dishDtoList != null) {
             //如果存在，直接返回，无需查询数据库
-            return R.success(dishDtoList);
+            return Result.success(dishDtoList);
         }
 
         //构造查询条件
@@ -226,7 +224,7 @@ public class DishController {
         //如果不存在，需要查询数据库，将查询到的菜品数据缓存到Redis
         redisTemplate.opsForValue().set(key, dishDtoList, 60, TimeUnit.MINUTES);
 
-        return R.success(dishDtoList);
+        return Result.success(dishDtoList);
     }
 
 
@@ -238,13 +236,13 @@ public class DishController {
      * @return
      */
     @PostMapping("/status/{code}")
-    public R<String> updateStatus(@PathVariable("code") Integer code, @RequestParam("ids") List<Long> ids) {
+    public Result<String> updateStatus(@PathVariable("code") Integer code, @RequestParam("ids") List<Long> ids) {
 //        String[] split = ids.split(",");
         for (Long id : ids) {
             Dish dish = dishService.getById(id);
 
             if (dish == null) {
-                return R.error("菜品id= " + id + " 不存在");
+                return Result.error("菜品id= " + id + " 不存在");
             }
 
             dish.setStatus(code);
@@ -254,13 +252,13 @@ public class DishController {
             while (!res) {
                 dish = dishService.getById(id);
                 if (dish == null) {
-                    return R.error("菜品id= " + id + " 不存在");
+                    return Result.error("菜品id= " + id + " 不存在");
                 }
                 dish.setStatus(code);
                 res = dishService.updateById(dish);
             }
         }
-        return R.success("状态修改成功");
+        return Result.success("状态修改成功");
     }
 
     /**
@@ -270,24 +268,24 @@ public class DishController {
      * @return
      */
     @DeleteMapping
-    public R<String> deleteById(@RequestParam List<Long> ids) {
+    public Result<String> deleteById(@RequestParam List<Long> ids) {
 //        String[] split = ids.split(",");
         for (Long id : ids) {
             Dish dish = dishService.getById(id);
 
             if (dish == null) {
-                return R.error("菜品id= " + id + " 不存在");
+                return Result.error("菜品id= " + id + " 不存在");
             }
 
             if (dish.getStatus() == 1) {
-                return R.error(dish.getName() + " 正在销售，无法删除");
+                return Result.error(dish.getName() + " 正在销售，无法删除");
             }
 
             boolean res = dishService.removeById(id);
             if (!res) {
-                return R.error("菜品id= " + id + " 不存在");
+                return Result.error("菜品id= " + id + " 不存在");
             }
         }
-        return R.success("删除成功");
+        return Result.success("删除成功");
     }
 }

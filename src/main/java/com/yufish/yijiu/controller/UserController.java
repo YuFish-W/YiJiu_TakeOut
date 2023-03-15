@@ -1,7 +1,8 @@
 package com.yufish.yijiu.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.yufish.yijiu.common.R;
+import com.yufish.yijiu.common.BaseContext;
+import com.yufish.yijiu.common.Result;
 import com.yufish.yijiu.entity.User;
 import com.yufish.yijiu.service.UserService;
 import com.yufish.yijiu.utils.EmailUtils;
@@ -40,7 +41,7 @@ public class UserController {
      */
     @PostMapping("/sendMsg")
     @ApiOperation(value = "发送验证码接口")
-    public R<String> sendMsg(/*@RequestBody User user,*/@RequestBody Map map){
+    public Result<String> sendMsg(/*@RequestBody User user,*/@RequestBody Map map){
         //获取手机号
 //        String phone = user.getPhone();
 
@@ -50,7 +51,7 @@ public class UserController {
             Object codeInRedis = redisTemplate.opsForValue().get(email);
             if (codeInRedis!=null){
                 Long expire = redisTemplate.opsForValue().getOperations().getExpire(email);
-                return R.error("验证码已经发送，" + expire + "秒后可再次请求");
+                return Result.error("验证码已经发送，" + expire + "秒后可再次请求");
             }
             //生成随机的4位验证码
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
@@ -67,10 +68,10 @@ public class UserController {
 //            redisTemplate.opsForValue().set(phone,code,5,TimeUnit.MINUTES);
             redisTemplate.opsForValue().set(email,code,60,TimeUnit.SECONDS);
 
-            return R.success("手机验证码短信发送成功");
+            return Result.success("手机验证码短信发送成功");
         }
 
-        return R.error("短信发送失败");
+        return Result.error("短信发送失败");
     }
 
     /**
@@ -81,7 +82,7 @@ public class UserController {
      */
     @PostMapping("/login")
     @ApiOperation(value = "登陆接口")
-    public R<User> login(@RequestBody Map map, HttpSession session){
+    public Result<User> login(@RequestBody Map map, HttpSession session){
         log.info(map.toString());
 
         //获取手机号
@@ -121,9 +122,9 @@ public class UserController {
             //如果用户登录成功，删除Redis中缓存的验证码
             redisTemplate.delete(email);
 
-            return R.success(user);
+            return Result.success(user);
         }
-        return R.error("验证码错误");
+        return Result.error("验证码错误");
     }
 
     /**
@@ -133,8 +134,9 @@ public class UserController {
      */
     @PostMapping("/loginout")
     @ApiOperation(value = "登出接口")
-    public R<String> loginout(HttpSession session){
+    public Result<String> loginout(HttpSession session){
         session.removeAttribute("user");
-        return R.success("登出成功");
+        BaseContext.remove();
+        return Result.success("登出成功");
     }
 }
