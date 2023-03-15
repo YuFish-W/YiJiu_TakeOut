@@ -4,15 +4,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+
+@Configuration // 一定不要忽略此注解
 public class CrosConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") //**匹配的是我们所有后台的路径，代表后台共享了什么资源
-                .allowedOrigins("http://localhost:8082") //匹配的前台的服务器地址
-                .maxAge(300 * 1000)
+        registry.addMapping("/**") // 所有接口
+                .allowCredentials(true) // 是否发送 Cookie
+                .allowedOriginPatterns("*") // 支持域
+                .allowedMethods("GET", "POST", "PUT", "DELETE") // 支持方法
                 .allowedHeaders("*")
-                .allowedMethods("*"); //允许的前台的请求方式
-
+                .exposedHeaders("*");
     }
 }
