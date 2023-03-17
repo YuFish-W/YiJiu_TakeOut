@@ -63,7 +63,8 @@ public class LoginCheckFilter implements Filter{
         }
 
         //4-1、判断登录状态，如果已登录，则直接放行,并且判断是否是前端页面的请求，不能因为后端登陆了把前端也放行
-        if(request.getSession().getAttribute("employee") != null && Pattern.matches("http(s)?://.*/backend.*",referer)){
+        // && Pattern.matches("http(s)?://.*/backend.*",referer)
+        if(request.getSession().getAttribute("employee") != null){
             log.info("用户已登录，用户id为：{}",request.getSession().getAttribute("employee"));
 
             Long empId = (Long) request.getSession().getAttribute("employee");
@@ -74,7 +75,8 @@ public class LoginCheckFilter implements Filter{
         }
 
         //4-2、判断登录状态，如果已登录，则直接放行
-        if(request.getSession().getAttribute("user") != null && Pattern.matches("http(s)?://.*/front.*",referer)){
+        // && Pattern.matches("http(s)?://.*/front.*",referer)
+        if(request.getSession().getAttribute("user") != null){
             log.info("用户已登录，用户id为：{}",request.getSession().getAttribute("user"));
 
             Long userId = (Long) request.getSession().getAttribute("user");
