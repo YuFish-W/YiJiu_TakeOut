@@ -2,11 +2,14 @@ package com.yufish.yijiu.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.yufish.yijiu.common.JacksonObjectMapper;
+import com.yufish.yijiu.interceptors.ThreadLocalInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -24,6 +27,32 @@ import java.util.List;
 @EnableSwagger2
 @EnableKnife4j
 public class WebMvcConfig extends WebMvcConfigurationSupport {
+
+    @Autowired
+    ThreadLocalInterceptor threadLocalInterceptor;
+    /**
+     * 添加拦截器
+     * @param registry
+     */
+    @Override
+    protected void addInterceptors(InterceptorRegistry registry) {
+        String[] urls = new String[]{
+                "/employee/login",
+                "/employee/logout",
+                "/backend/**",
+                "/front/**",
+                "/common/**",
+                "/user/sendMsg",
+                "/user/login",
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs",
+                "/employee/login"
+        };
+        registry.addInterceptor(threadLocalInterceptor)
+                .addPathPatterns("/**").excludePathPatterns(urls);
+    }
 
     /**
      * 设置静态资源映射

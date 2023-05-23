@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
@@ -21,7 +20,6 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
-
     /**
      * 员工登录
      * @param request
@@ -30,7 +28,6 @@ public class EmployeeController {
      */
     @PostMapping("/login")
     public Result<Employee> login(HttpServletRequest request, @RequestBody Employee employee){
-
         //1、将页面提交的密码password进行md5加密处理
         String password = employee.getPassword();
         password = DigestUtils.md5DigestAsHex(password.getBytes());

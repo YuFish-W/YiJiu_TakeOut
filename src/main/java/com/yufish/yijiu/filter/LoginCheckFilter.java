@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.yufish.yijiu.common.BaseContext;
 import com.yufish.yijiu.common.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.*;
@@ -26,7 +27,6 @@ public class LoginCheckFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-
 
         //1、获取本次请求的URI
         String requestURI = request.getRequestURI();// /backend/index.html
@@ -66,7 +66,7 @@ public class LoginCheckFilter implements Filter {
         // && Pattern.matches("http(s)?://.*/backend.*",referer)
         if (request.getSession().getAttribute("employee") != null && Pattern.matches("http(s)?://.*/backend.*", referer)) {
             log.info("用户已登录，用户id为：{}", request.getSession().getAttribute("employee"));
-
+            Thread thread = Thread.currentThread();
             Long empId = (Long) request.getSession().getAttribute("employee");
             BaseContext.setCurrentId(empId);
 
