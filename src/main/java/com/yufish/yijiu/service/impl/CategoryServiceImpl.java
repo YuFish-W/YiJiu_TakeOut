@@ -28,7 +28,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
 
     /**
      * 根据id删除分类，删除之前需要进行判断
-     * @param id
+     * @param id 主键
      */
     @Override
     public void remove(Long id) {
