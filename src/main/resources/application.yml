@@ -12,16 +12,16 @@ spring:
       master:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        #url: jdbc:mysql://192.168.200.129:3307/YiJiu?characterEncoding=utf-8
-        url: jdbc:mysql://129.211.220.154:3307/YiJiu?characterEncoding=utf-8
+        url: jdbc:mysql://192.168.200.129:3307/YiJiu?characterEncoding=utf-8
+        #url: jdbc:mysql://129.211.220.154:3307/YiJiu?characterEncoding=utf-8
         username: root
         password: yyds
       # 从数据源
       slave:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        #url: jdbc:mysql://192.168.200.129:3308/YiJiu?characterEncoding=utf-8
-        url: jdbc:mysql://129.211.220.154:3308/YiJiu?characterEncoding=utf-8
+        url: jdbc:mysql://192.168.200.129:3308/YiJiu?characterEncoding=utf-8
+        #url: jdbc:mysql://129.211.220.154:3308/YiJiu?characterEncoding=utf-8
         username: root
         password: yyds
     masterslave:
@@ -46,8 +46,8 @@ spring:
   redis:
     cluster:
       max-redirects: 3
-      #nodes: 192.168.200.129:6381,192.168.200.129:6382,192.168.200.129:6383,192.168.200.129:6384,192.168.200.129:6385,192.168.200.129:6386
-      nodes: 129.211.220.154:6381,129.211.220.154:6382,129.211.220.154:6383,129.211.220.154:6384,129.211.220.154:6385,129.211.220.154:6386
+      nodes: 192.168.200.129:6381,192.168.200.129:6382,192.168.200.129:6383,192.168.200.129:6384,192.168.200.129:6385,192.168.200.129:6386
+      #nodes: 129.211.220.154:6381,129.211.220.154:6382,129.211.220.154:6383,129.211.220.154:6384,129.211.220.154:6385,129.211.220.154:6386
     jedis:
       pool: #这里这些配置全都是默认值
         max-active: 8
@@ -68,5 +68,5 @@ mybatis-plus:
     db-config:
       id-type: ASSIGN_ID
 YiJiu:
-  #path: /opt/git-space/YiJiu_TakeOut/YiJiu_TakeOutImg/
-  path: /myservice/YiJiu_TakeOut/YiJiu_TakeOutImg/
+  path: /opt/git-space/YiJiu_TakeOut/YiJiu_TakeOutImg/
+  #path: /myservice/YiJiu_TakeOut/YiJiu_TakeOutImg/
