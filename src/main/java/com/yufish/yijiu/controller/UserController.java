@@ -3,7 +3,7 @@ package com.yufish.yijiu.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yufish.yijiu.common.BaseContext;
 import com.yufish.yijiu.common.Result;
-import com.yufish.yijiu.entity.User;
+import com.yufish.yijiu.entity.UserPO;
 import com.yufish.yijiu.service.UserService;
 import com.yufish.yijiu.utils.EmailUtils;
 import com.yufish.yijiu.utils.ValidateCodeUtils;
@@ -82,7 +82,7 @@ public class UserController {
      */
     @PostMapping("/login")
     @ApiOperation(value = "登陆接口")
-    public Result<User> login(@RequestBody Map map, HttpSession session){
+    public Result<UserPO> login(@RequestBody Map map, HttpSession session){
         log.info(map.toString());
 
         //获取手机号
@@ -104,25 +104,25 @@ public class UserController {
         if(codeInSession != null && codeInSession.equals(code)){
             //如果能够比对成功，说明登录成功
 
-            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getPhone,phone);
-            queryWrapper.eq(User::getEmail,email);
+            LambdaQueryWrapper<UserPO> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(UserPO::getPhone,phone);
+            queryWrapper.eq(UserPO::getEmail,email);
 
-            User user = userService.getOne(queryWrapper);
-            if(user == null){
+            UserPO userPO = userService.getOne(queryWrapper);
+            if(userPO == null){
                 //判断当前手机号对应的用户是否为新用户，如果是新用户就自动完成注册
-                user = new User();
-                user.setPhone(phone);
-                user.setEmail(email);
-                user.setStatus(1);
-                userService.save(user);
+                userPO = new UserPO();
+                userPO.setPhone(phone);
+                userPO.setEmail(email);
+                userPO.setStatus(1);
+                userService.save(userPO);
             }
-            session.setAttribute("user",user.getId());
+            session.setAttribute("user", userPO.getId());
 
             //如果用户登录成功，删除Redis中缓存的验证码
             redisTemplate.delete(email);
 
-            return Result.success(user);
+            return Result.success(userPO);
         }
         return Result.error("验证码错误");
     }

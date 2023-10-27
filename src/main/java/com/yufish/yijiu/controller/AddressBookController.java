@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.yufish.yijiu.common.BaseContext;
 import com.yufish.yijiu.common.Result;
-import com.yufish.yijiu.entity.AddressBook;
+import com.yufish.yijiu.entity.AddressBookPO;
 import com.yufish.yijiu.service.AddressBookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,36 +20,41 @@ import java.util.List;
 @RequestMapping("/addressBook")
 public class AddressBookController {
 
+
+    private final AddressBookService addressBookService;
+
     @Autowired
-    private AddressBookService addressBookService;
+    public AddressBookController(AddressBookService addressBookService) {
+        this.addressBookService = addressBookService;
+    }
 
     /**
      * 新增
      */
     @PostMapping
-    public Result<AddressBook> save(@RequestBody AddressBook addressBook) {
-        addressBook.setUserId(BaseContext.getCurrentId());
-        log.info("addressBook:{}", addressBook);
-        addressBookService.save(addressBook);
-        return Result.success(addressBook);
+    public Result<AddressBookPO> save(@RequestBody AddressBookPO addressBookPO) {
+        addressBookPO.setUserId(BaseContext.getCurrentId());
+        log.info("addressBook:{}", addressBookPO);
+        addressBookService.save(addressBookPO);
+        return Result.success(addressBookPO);
     }
 
     /**
      * 设置默认地址
      */
     @PutMapping("default")
-    public Result<AddressBook> setDefault(@RequestBody AddressBook addressBook) {
-        log.info("addressBook:{}", addressBook);
-        LambdaUpdateWrapper<AddressBook> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
-        wrapper.set(AddressBook::getIsDefault, 0);
+    public Result<AddressBookPO> setDefault(@RequestBody AddressBookPO addressBookPO) {
+        log.info("addressBook:{}", addressBookPO);
+        LambdaUpdateWrapper<AddressBookPO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(AddressBookPO::getUserId, BaseContext.getCurrentId());
+        wrapper.set(AddressBookPO::getIsDefault, 0);
         //SQL:update address_book set is_default = 0 where user_id = ?
         addressBookService.update(wrapper);
 
-        addressBook.setIsDefault(1);
+        addressBookPO.setIsDefault(1);
         //SQL:update address_book set is_default = 1 where id = ?
-        addressBookService.updateById(addressBook);
-        return Result.success(addressBook);
+        addressBookService.updateById(addressBookPO);
+        return Result.success(addressBookPO);
     }
 
     /**
@@ -57,9 +62,9 @@ public class AddressBookController {
      */
     @GetMapping("/{id}")
     public Result get(@PathVariable Long id) {
-        AddressBook addressBook = addressBookService.getById(id);
-        if (addressBook != null) {
-            return Result.success(addressBook);
+        AddressBookPO addressBookPO = addressBookService.getById(id);
+        if (addressBookPO != null) {
+            return Result.success(addressBookPO);
         } else {
             return Result.error("没有找到该对象");
         }
@@ -69,18 +74,18 @@ public class AddressBookController {
      * 查询默认地址
      */
     @GetMapping("default")
-    public Result<AddressBook> getDefault() {
-        LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
-        queryWrapper.eq(AddressBook::getIsDefault, 1);
+    public Result<AddressBookPO> getDefault() {
+        LambdaQueryWrapper<AddressBookPO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AddressBookPO::getUserId, BaseContext.getCurrentId());
+        queryWrapper.eq(AddressBookPO::getIsDefault, 1);
 
         //SQL:select * from address_book where user_id = ? and is_default = 1
-        AddressBook addressBook = addressBookService.getOne(queryWrapper);
+        AddressBookPO addressBookPO = addressBookService.getOne(queryWrapper);
 
-        if (null == addressBook) {
+        if (null == addressBookPO) {
             return Result.error("没有找到该对象");
         } else {
-            return Result.success(addressBook);
+            return Result.success(addressBookPO);
         }
     }
 
@@ -88,14 +93,14 @@ public class AddressBookController {
      * 查询指定用户的全部地址
      */
     @GetMapping("/list")
-    public Result<List<AddressBook>> list(AddressBook addressBook) {
-        addressBook.setUserId(BaseContext.getCurrentId());
-        log.info("addressBook:{}", addressBook);
+    public Result<List<AddressBookPO>> list(AddressBookPO addressBookPO) {
+        addressBookPO.setUserId(BaseContext.getCurrentId());
+        log.info("addressBook:{}", addressBookPO);
 
         //条件构造器
-        LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(null != addressBook.getUserId(), AddressBook::getUserId, addressBook.getUserId());
-        queryWrapper.orderByDesc(AddressBook::getUpdateTime);
+        LambdaQueryWrapper<AddressBookPO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(null != addressBookPO.getUserId(), AddressBookPO::getUserId, addressBookPO.getUserId());
+        queryWrapper.orderByDesc(AddressBookPO::getUpdateTime);
 
         //SQL:select * from address_book where user_id = ? order by update_time desc
         return Result.success(addressBookService.list(queryWrapper));

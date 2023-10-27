@@ -8,7 +8,7 @@ import java.io.Serializable;
  * 用户信息
  */
 @Data
-public class User implements Serializable {
+public class UserPO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

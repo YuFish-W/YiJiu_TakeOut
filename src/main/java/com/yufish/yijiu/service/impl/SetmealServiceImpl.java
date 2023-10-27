@@ -3,10 +3,10 @@ package com.yufish.yijiu.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yufish.yijiu.common.CustomException;
-import com.yufish.yijiu.dto.SetmealDto;
-import com.yufish.yijiu.entity.Category;
-import com.yufish.yijiu.entity.Setmeal;
-import com.yufish.yijiu.entity.SetmealDish;
+import com.yufish.yijiu.dto.SetmealDTO;
+import com.yufish.yijiu.entity.CategoryPO;
+import com.yufish.yijiu.entity.SetmealDishPO;
+import com.yufish.yijiu.entity.SetmealPO;
 import com.yufish.yijiu.mapper.SetmealMapper;
 import com.yufish.yijiu.service.CategoryService;
 import com.yufish.yijiu.service.SetmealDishService;
@@ -17,37 +17,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> implements SetmealService {
+public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, SetmealPO> implements SetmealService {
+
+    private final SetmealDishService setmealDishService;
+
+    private final CategoryService categoryService;
 
     @Autowired
-    private SetmealDishService setmealDishService;
-
-    @Resource
-    private CategoryService categoryService;
+    public SetmealServiceImpl(SetmealDishService setmealDishService,
+                              CategoryService categoryService) {
+        this.setmealDishService = setmealDishService;
+        this.categoryService = categoryService;
+    }
 
     /**
      * 新增套餐，同时需要保存套餐和菜品的关联关系
      * @param setmealDto
      */
     @Transactional
-    public void saveWithDish(SetmealDto setmealDto) {
+    public void saveWithDish(SetmealDTO setmealDto) {
         //保存套餐的基本信息，操作setmeal，执行insert操作
         this.save(setmealDto);
 
-        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
-        setmealDishes.stream().map((item) -> {
+        List<SetmealDishPO> setmealDishPOS = setmealDto.getSetmealDishPOS();
+        setmealDishPOS.stream().map((item) -> {
             item.setSetmealId(setmealDto.getId());
             return item;
         }).collect(Collectors.toList());
 
         //保存套餐和菜品的关联信息，操作setmeal_dish,执行insert操作
-        setmealDishService.saveBatch(setmealDishes);
+        setmealDishService.saveBatch(setmealDishPOS);
     }
 
     /**
@@ -55,21 +59,21 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> imple
      * @param setmealDto
      */
     @Transactional
-    public void updateWithDish(SetmealDto setmealDto) {
+    public void updateWithDish(SetmealDTO setmealDto) {
         this.updateById(setmealDto);
 
-        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
+        List<SetmealDishPO> setmealDishPOS = setmealDto.getSetmealDishPOS();
         //先清除原先的菜品
-        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SetmealDish::getSetmealId,setmealDto.getId());
+        LambdaQueryWrapper<SetmealDishPO> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SetmealDishPO::getSetmealId,setmealDto.getId());
         setmealDishService.remove(queryWrapper);
         //把现在的菜品加入
-        setmealDishes.stream().map((item) -> {
+        setmealDishPOS.stream().map((item) -> {
             item.setSetmealId(setmealDto.getId());
             return item;
         }).collect(Collectors.toList());
 
-        setmealDishService.saveBatch(setmealDishes);
+        setmealDishService.saveBatch(setmealDishPOS);
     }
 
     /**
@@ -80,9 +84,9 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> imple
     public void removeWithDish(List<Long> ids) {
         //select count(*) from setmeal where id in (1,2,3) and status = 1
         //查询套餐状态，确定是否可用删除
-        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.in(Setmeal::getId,ids);
-        queryWrapper.eq(Setmeal::getStatus,1);
+        LambdaQueryWrapper<SetmealPO> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.in(SetmealPO::getId,ids);
+        queryWrapper.eq(SetmealPO::getStatus,1);
 
         int count = this.count(queryWrapper);
         if(count > 0){
@@ -94,8 +98,8 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> imple
         this.removeByIds(ids);
 
         //delete from setmeal_dish where setmeal_id in (1,2,3)
-        LambdaQueryWrapper<SetmealDish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.in(SetmealDish::getSetmealId,ids);
+        LambdaQueryWrapper<SetmealDishPO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(SetmealDishPO::getSetmealId,ids);
         //删除关系表中的数据----setmeal_dish
         setmealDishService.remove(lambdaQueryWrapper);
     }
@@ -105,21 +109,21 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> imple
      * @param id
      * @return
      */
-    public SetmealDto getWithDish(Long id){
+    public SetmealDTO getWithDish(Long id){
         //得到套餐类，根据它的ID找出所有菜品
-        Setmeal setmeal= this.getById(id);
+        SetmealPO setmealPO = this.getById(id);
 
-        SetmealDto setmealDto = new SetmealDto();
-        BeanUtils.copyProperties(setmeal,setmealDto);
+        SetmealDTO setmealDto = new SetmealDTO();
+        BeanUtils.copyProperties(setmealPO,setmealDto);
 
-        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<SetmealDishPO> queryWrapper = new LambdaQueryWrapper();
 
-        queryWrapper.eq(SetmealDish::getSetmealId,id);
-        List<SetmealDish> list = setmealDishService.list(queryWrapper);
-        setmealDto.setSetmealDishes(list);
+        queryWrapper.eq(SetmealDishPO::getSetmealId,id);
+        List<SetmealDishPO> list = setmealDishService.list(queryWrapper);
+        setmealDto.setSetmealDishPOS(list);
         //带上套餐名字，其实不用查出来，前端自己有记录
-        Category category = categoryService.getById(setmeal.getCategoryId());
-        setmealDto.setCategoryName(category.getName());
+        CategoryPO categoryPO = categoryService.getById(setmealPO.getCategoryId());
+        setmealDto.setCategoryName(categoryPO.getName());
         return setmealDto;
     }
 }

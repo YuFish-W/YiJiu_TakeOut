@@ -21,49 +21,57 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implements OrderService {
+public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrdersPO> implements OrderService {
+
+    private final ShoppingCartService shoppingCartService;
+
+    private final UserService userService;
+
+    private final AddressBookService addressBookService;
+
+    private final OrderDetailService orderDetailService;
+
+    private final DishService dishService;
 
     @Autowired
-    private ShoppingCartService shoppingCartService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AddressBookService addressBookService;
-
-    @Autowired
-    private OrderDetailService orderDetailService;
-
-    @Autowired
-    private DishService dishService;
-
+    public OrderServiceImpl(ShoppingCartService shoppingCartService,
+                            UserService userService,
+                            AddressBookService addressBookService,
+                            OrderDetailService orderDetailService,
+                            DishService dishService) {
+        this.shoppingCartService = shoppingCartService;
+        this.userService = userService;
+        this.addressBookService = addressBookService;
+        this.orderDetailService = orderDetailService;
+        this.dishService = dishService;
+    }
 
     /**
      * 用户下单，如果当前订单需要的菜品中有数量不足的，抛出异常，数据不提交
-     * @param orders
+     *
+     * @param ordersPO
      */
     @Transactional
-    public void submit(Orders orders) {
+    public void submit(OrdersPO ordersPO) {
         //获得当前用户id
         Long userId = BaseContext.getCurrentId();
 
         //查询当前用户的购物车数据
-        LambdaQueryWrapper<ShoppingCart> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ShoppingCart::getUserId,userId);
-        List<ShoppingCart> shoppingCarts = shoppingCartService.list(wrapper);
+        LambdaQueryWrapper<ShoppingCartPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ShoppingCartPO::getUserId, userId);
+        List<ShoppingCartPO> shoppingCartPOS = shoppingCartService.list(wrapper);
 
-        if(shoppingCarts == null || shoppingCarts.size() == 0){
+        if (shoppingCartPOS == null || shoppingCartPOS.size() == 0) {
             throw new CustomException("购物车为空，不能下单");
         }
 
         //查询用户数据
-        User user = userService.getById(userId);
+        UserPO userPO = userService.getById(userId);
 
         //查询地址数据
-        Long addressBookId = orders.getAddressBookId();
-        AddressBook addressBook = addressBookService.getById(addressBookId);
-        if(addressBook == null){
+        Long addressBookId = ordersPO.getAddressBookId();
+        AddressBookPO addressBookPO = addressBookService.getById(addressBookId);
+        if (addressBookPO == null) {
             throw new CustomException("用户地址信息有误，不能下单");
         }
 
@@ -71,42 +79,45 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
         AtomicInteger amount = new AtomicInteger(0);
 
-        List<OrderDetail> orderDetails = shoppingCarts.stream().map((item) -> {
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrderId(orderId);
-            orderDetail.setNumber(item.getNumber());
-            orderDetail.setDishFlavor(item.getDishFlavor());
-            orderDetail.setDishId(item.getDishId());
-            orderDetail.setSetmealId(item.getSetmealId());
-            orderDetail.setName(item.getName());
-            orderDetail.setImage(item.getImage());
-            orderDetail.setAmount(item.getAmount());
-            amount.addAndGet(item.getAmount().multiply(new BigDecimal(item.getNumber())).intValue());
-            return orderDetail;
-        }).collect(Collectors.toList());
+        List<OrderDetailPO> orderDetailPOS = shoppingCartPOS
+                .stream()
+                .map(item -> {
+                    OrderDetailPO orderDetailPO = new OrderDetailPO();
+                    orderDetailPO.setOrderId(orderId);
+                    orderDetailPO.setNumber(item.getNumber());
+                    orderDetailPO.setDishFlavor(item.getDishFlavor());
+                    orderDetailPO.setDishId(item.getDishId());
+                    orderDetailPO.setSetmealId(item.getSetmealId());
+                    orderDetailPO.setName(item.getName());
+                    orderDetailPO.setImage(item.getImage());
+                    orderDetailPO.setAmount(item.getAmount());
+                    amount.addAndGet(item.getAmount().multiply(new BigDecimal(item.getNumber())).intValue());
+                    return orderDetailPO;
+                })
+                .collect(Collectors.toList());
 
 
-        orders.setId(orderId);
-        orders.setOrderTime(LocalDateTime.now());
-        orders.setCheckoutTime(LocalDateTime.now());
+        ordersPO.setId(orderId);
+        ordersPO.setOrderTime(LocalDateTime.now());
+        ordersPO.setCheckoutTime(LocalDateTime.now());
         //状态2表示 正在派送
-        orders.setStatus(2);
-        orders.setAmount(new BigDecimal(amount.get()));//总金额
-        orders.setUserId(userId);
-        orders.setNumber(String.valueOf(orderId));
-        orders.setUserName(user.getName());
-        orders.setConsignee(addressBook.getConsignee());
-        orders.setPhone(addressBook.getPhone());
-        orders.setAddress((addressBook.getProvinceName() == null ? "" : addressBook.getProvinceName())
-                + (addressBook.getCityName() == null ? "" : addressBook.getCityName())
-                + (addressBook.getDistrictName() == null ? "" : addressBook.getDistrictName())
-                + (addressBook.getDetail() == null ? "" : addressBook.getDetail()));
+        ordersPO.setStatus(2);
+        ordersPO.setAmount(new BigDecimal(amount.get()));//总金额
+        ordersPO.setUserId(userId);
+        ordersPO.setNumber(String.valueOf(orderId));
+        ordersPO.setUserName(userPO.getName());
+        ordersPO.setConsignee(addressBookPO.getConsignee());
+        ordersPO.setPhone(addressBookPO.getPhone());
+        ordersPO.setAddress((addressBookPO.getProvinceName() == null ? "" : addressBookPO.getProvinceName())
+                + (addressBookPO.getCityName() == null ? "" : addressBookPO.getCityName())
+                + (addressBookPO.getDistrictName() == null ? "" : addressBookPO.getDistrictName())
+                + (addressBookPO.getDetail() == null ? "" : addressBookPO.getDetail()));
         //向订单表插入数据，一条数据
-        this.save(orders);
+        this.save(ordersPO);
 
         //向订单明细表插入数据，多条数据
-        OrderDetailService.Status status = orderDetailService.MySaveBatch(orderDetails);
-        if (!status.isRes()){
+        OrderDetailService.Status status = orderDetailService.MySaveBatch(orderDetailPOS);
+        if (!status.isRes()) {
             Long dishId = status.getDishId();
             String name = dishService.getById(dishId).getName();
             throw new CustomException(name + " 数量不足，请换一盘菜");

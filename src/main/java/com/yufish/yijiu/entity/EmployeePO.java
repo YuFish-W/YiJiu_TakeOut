@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * 员工实体
  */
 @Data
-public class Employee implements Serializable {
+public class EmployeePO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

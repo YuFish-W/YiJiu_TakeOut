@@ -1,10 +1,10 @@
 package com.yufish.yijiu.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yufish.yijiu.entity.ShoppingCart;
+import com.yufish.yijiu.entity.ShoppingCartPO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ShoppingCartMapper extends BaseMapper<ShoppingCart> {
+public interface ShoppingCartMapper extends BaseMapper<ShoppingCartPO> {
 
 }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,userPO-scalable=no,minimal-ui">
     <title>一酒馆</title>
     <link rel="icon" href="images/favico.ico">
     <!--不同屏幕尺寸根字体设置-->
@@ -21,7 +21,7 @@
   <body>
     <div id="main" class="app">
       <div class="divHead">
-        <img src="./images/user.png" @click="toUserPage"/>
+        <img src="./images/userPO.png" @click="toUserPage"/>
       </div>
       <div class="divTitle">
         <div class="divStatic">
@@ -338,10 +338,10 @@
                 let dishList = res.data
                 const cartData  = this.cartData
                 if(dishList.length > 0 && cartData.length > 0){
-                  dishList.forEach(dish=>{
+                  dishList.forEach(dishPO=>{
                     cartData.forEach(cart=>{
-                      if(dish.id === cart.dishId){
-                        dish.number = cart.number
+                      if(dishPO.id === cart.dishId){
+                        dishPO.number = cart.number
                       }
                     })
                   })
@@ -361,10 +361,10 @@
                   let dishList = res.data
                   const cartData  = this.cartData
                   if(dishList.length > 0 && cartData.length > 0){
-                    dishList.forEach(dish=>{
+                    dishList.forEach(dishPO=>{
                       cartData.forEach(cart=>{
-                        if(dish.id === cart.setmealId){
-                          dish.number = cart.number
+                        if(dishPO.id === cart.setmealId){
+                          dishPO.number = cart.number
                         }
                       })
                     })
@@ -400,9 +400,9 @@
               }
               const res = await addCartApi(params)
               if(res.code === 1){
-                this.dishList.forEach(dish=>{
-                  if(dish.id === item.id){
-                    dish.number = res.data.number
+                this.dishList.forEach(dishPO=>{
+                  if(dishPO.id === item.id){
+                    dishPO.number = res.data.number
                   }
                 })
                 if(this.setMealDialog.show){
@@ -426,9 +426,9 @@
                 }
                 const res = await updateCartApi(params)
                 if(res.code === 1){
-                this.dishList.forEach(dish=>{
-                  if(dish.id === item.id){
-                    dish.number = (res.data.number === 0 ? undefined : res.data.number)
+                this.dishList.forEach(dishPO=>{
+                  if(dishPO.id === item.id){
+                    dishPO.number = (res.data.number === 0 ? undefined : res.data.number)
                   }
                 })
                 if(this.setMealDialog.show){
@@ -458,9 +458,9 @@
               }
               const res = await addCartApi(params)
               if(res.code === 1){
-                this.dishList.forEach(dish=>{
-                  if(dish.id === (item.dishId || item.setmealId)){
-                    dish.number = res.data.number
+                this.dishList.forEach(dishPO=>{
+                  if(dishPO.id === (item.dishId || item.setmealId)){
+                    dishPO.number = res.data.number
                   }
                 })
                 console.log(this.dishList)
@@ -477,9 +477,9 @@
                 }
                 const res = await updateCartApi(params)
                 if(res.code === 1){
-                this.dishList.forEach(dish=>{
-                  if(dish.id === (item.dishId || item.setmealId)){
-                    dish.number = (res.data.number === 0 ? undefined : res.data.number)
+                this.dishList.forEach(dishPO=>{
+                  if(dishPO.id === (item.dishId || item.setmealId)){
+                    dishPO.number = (res.data.number === 0 ? undefined : res.data.number)
                   }
                 })
                 this.getCartData()
@@ -574,7 +574,7 @@
             },
             toUserPage(){
               window.requestAnimationFrame(()=>{
-                window.location.href= '/front/page/user.html'
+                window.location.href= '/front/page/userPO.html'
               })
             },
             async dishDetails(item){

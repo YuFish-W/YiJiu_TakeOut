@@ -3,12 +3,13 @@ package com.yufish.yijiu.entity;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
- * 订单明细
+ * 购物车
  */
 @Data
-public class OrderDetail implements Serializable {
+public class ShoppingCartPO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -17,21 +18,17 @@ public class OrderDetail implements Serializable {
     //名称
     private String name;
 
-    //订单id
-    private Long orderId;
-
+    //用户id
+    private Long userId;
 
     //菜品id
     private Long dishId;
 
-
     //套餐id
     private Long setmealId;
 
-
     //口味
     private String dishFlavor;
-
 
     //数量
     private Integer number;
@@ -41,4 +38,6 @@ public class OrderDetail implements Serializable {
 
     //图片
     private String image;
+
+    private LocalDateTime createTime;
 }

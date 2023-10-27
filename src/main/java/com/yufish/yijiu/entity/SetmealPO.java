@@ -2,42 +2,59 @@ package com.yufish.yijiu.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 套餐菜品关系
+ * 套餐
  */
 @Data
-public class SetmealDish implements Serializable {
+@ApiModel("套餐")
+public class SetmealPO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty("主键")
     private Long id;
 
 
-    //套餐id
-    private Long setmealId;
+    //分类id
+    @ApiModelProperty("分类id")
+    private Long categoryId;
 
 
-    //菜品id
-    private Long dishId;
-
-
-    //菜品名称 （冗余字段）
+    //套餐名称
+    @ApiModelProperty("套餐名称")
     private String name;
 
-    //菜品原价
+
+    //套餐价格
+    @ApiModelProperty("套餐价格")
     private BigDecimal price;
 
-    //份数
-    private Integer copies;
+
+    //状态 0:停用 1:启用
+    @ApiModelProperty("状态")
+    private Integer status;
 
 
-    //排序
-    private Integer sort;
+    //编码
+    @ApiModelProperty("套餐编号")
+    private String code;
+
+
+    //描述信息
+    @ApiModelProperty("描述信息")
+    private String description;
+
+
+    //图片
+    @ApiModelProperty("图片")
+    private String image;
 
 
     @TableField(fill = FieldFill.INSERT)
@@ -55,7 +72,4 @@ public class SetmealDish implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
 
-
-    //是否删除
-    private Integer isDeleted;
 }

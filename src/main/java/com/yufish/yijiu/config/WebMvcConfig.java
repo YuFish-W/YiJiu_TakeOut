@@ -28,8 +28,13 @@ import java.util.List;
 @EnableKnife4j
 public class WebMvcConfig extends WebMvcConfigurationSupport {
 
+    private final ThreadLocalInterceptor threadLocalInterceptor;
+
     @Autowired
-    ThreadLocalInterceptor threadLocalInterceptor;
+    public WebMvcConfig(ThreadLocalInterceptor threadLocalInterceptor) {
+        this.threadLocalInterceptor = threadLocalInterceptor;
+    }
+
     /**
      * 添加拦截器
      * @param registry

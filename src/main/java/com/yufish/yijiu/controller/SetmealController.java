@@ -3,9 +3,9 @@ package com.yufish.yijiu.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yufish.yijiu.common.Result;
-import com.yufish.yijiu.dto.SetmealDto;
-import com.yufish.yijiu.entity.Category;
-import com.yufish.yijiu.entity.Setmeal;
+import com.yufish.yijiu.dto.SetmealDTO;
+import com.yufish.yijiu.entity.CategoryPO;
+import com.yufish.yijiu.entity.SetmealPO;
 import com.yufish.yijiu.service.CategoryService;
 import com.yufish.yijiu.service.SetmealDishService;
 import com.yufish.yijiu.service.SetmealService;
@@ -49,7 +49,7 @@ public class SetmealController {
     @PostMapping
     @CacheEvict(value = "setmealCache",allEntries = true)
     @ApiOperation(value = "新增套餐接口")
-    public Result<String> save(@RequestBody SetmealDto setmealDto){
+    public Result<String> save(@RequestBody SetmealDTO setmealDto){
         log.info("套餐信息：{}",setmealDto);
 
         setmealService.saveWithDish(setmealDto);
@@ -60,7 +60,7 @@ public class SetmealController {
     @PutMapping
     @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId + '_' + #setmealDto.status")
     @ApiOperation(value = "修改套餐接口")
-    public Result<String> update(@RequestBody SetmealDto setmealDto){
+    public Result<String> update(@RequestBody SetmealDTO setmealDto){
         log.info("套餐信息：{}",setmealDto);
 
         setmealService.updateWithDish(setmealDto);
@@ -84,32 +84,32 @@ public class SetmealController {
     })
     public Result<Page> page(int page, int pageSize, String name){
         //分页构造器对象
-        Page<Setmeal> pageInfo = new Page<>(page,pageSize);
-        Page<SetmealDto> dtoPage = new Page<>();
+        Page<SetmealPO> pageInfo = new Page<>(page,pageSize);
+        Page<SetmealDTO> dtoPage = new Page<>();
 
-        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<SetmealPO> queryWrapper = new LambdaQueryWrapper<>();
         //添加查询条件，根据name进行like模糊查询
-        queryWrapper.like(name != null,Setmeal::getName,name);
+        queryWrapper.like(name != null, SetmealPO::getName,name);
         //添加排序条件，根据更新时间降序排列
-        queryWrapper.orderByDesc(Setmeal::getUpdateTime);
+        queryWrapper.orderByDesc(SetmealPO::getUpdateTime);
 
         setmealService.page(pageInfo,queryWrapper);
 
         //对象拷贝
         BeanUtils.copyProperties(pageInfo,dtoPage,"records");
-        List<Setmeal> records = pageInfo.getRecords();
+        List<SetmealPO> records = pageInfo.getRecords();
 
-        List<SetmealDto> list = records.stream().map((item) -> {
-            SetmealDto setmealDto = new SetmealDto();
+        List<SetmealDTO> list = records.stream().map((item) -> {
+            SetmealDTO setmealDto = new SetmealDTO();
             //对象拷贝
             BeanUtils.copyProperties(item,setmealDto);
             //分类id
             Long categoryId = item.getCategoryId();
             //根据分类id查询分类对象
-            Category category = categoryService.getById(categoryId);
-            if(category != null){
+            CategoryPO categoryPO = categoryService.getById(categoryId);
+            if(categoryPO != null){
                 //分类名称
-                String categoryName = category.getName();
+                String categoryName = categoryPO.getName();
                 setmealDto.setCategoryName(categoryName);
             }
             return setmealDto;
@@ -137,19 +137,19 @@ public class SetmealController {
 
     /**
      * 根据条件查询套餐数据,查询指定套餐分类下的所有套餐
-     * @param setmeal
+     * @param setmealPO
      * @return
      */
     @GetMapping("/list")
-    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId + '_' + #setmeal.status")
+    @Cacheable(value = "setmealCache",key = "#setmealPO.categoryId + '_' + #setmealPO.status")
     @ApiOperation(value = "套餐条件查询接口")
-    public Result<List<Setmeal>> list(Setmeal setmeal){
-        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(setmeal.getCategoryId() != null,Setmeal::getCategoryId,setmeal.getCategoryId());
-        queryWrapper.eq(setmeal.getStatus() != null,Setmeal::getStatus,setmeal.getStatus());
-        queryWrapper.orderByDesc(Setmeal::getUpdateTime);
+    public Result<List<SetmealPO>> list(SetmealPO setmealPO){
+        LambdaQueryWrapper<SetmealPO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(setmealPO.getCategoryId() != null, SetmealPO::getCategoryId, setmealPO.getCategoryId());
+        queryWrapper.eq(setmealPO.getStatus() != null, SetmealPO::getStatus, setmealPO.getStatus());
+        queryWrapper.orderByDesc(SetmealPO::getUpdateTime);
 
-        List<Setmeal> list = setmealService.list(queryWrapper);
+        List<SetmealPO> list = setmealService.list(queryWrapper);
         return Result.success(list);
     }
 
@@ -162,10 +162,10 @@ public class SetmealController {
     @PostMapping("/status/{status}")
     public Result<String> status(@PathVariable("status") Integer status, @RequestParam("ids") List<Long> ids){
         for (Long id : ids) {
-            Setmeal setmeal = new Setmeal();
-            setmeal.setId(id);
-            setmeal.setStatus(status);
-            boolean res = setmealService.updateById(setmeal);
+            SetmealPO setmealPO = new SetmealPO();
+            setmealPO.setId(id);
+            setmealPO.setStatus(status);
+            boolean res = setmealService.updateById(setmealPO);
             if (!res){
                 return Result.error("状态修改失败");
             }
@@ -179,8 +179,8 @@ public class SetmealController {
      * @return
      */
     @GetMapping("{id}")
-    public Result<SetmealDto> get(@PathVariable("id") Long id){
-        SetmealDto setmealDto = setmealService.getWithDish(id);
+    public Result<SetmealDTO> get(@PathVariable("id") Long id){
+        SetmealDTO setmealDto = setmealService.getWithDish(id);
         return Result.success(setmealDto);
     }
 }

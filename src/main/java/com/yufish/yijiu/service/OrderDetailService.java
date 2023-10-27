@@ -1,12 +1,12 @@
 package com.yufish.yijiu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yufish.yijiu.entity.OrderDetail;
+import com.yufish.yijiu.entity.OrderDetailPO;
 import lombok.Data;
 
 import java.util.Collection;
 
-public interface OrderDetailService extends IService<OrderDetail> {
+public interface OrderDetailService extends IService<OrderDetailPO> {
 
     /**
      * 一个自定义类，作为saveBatch方法返回值
@@ -29,5 +29,5 @@ public interface OrderDetailService extends IService<OrderDetail> {
      * @param entityList 订单集合
      * @return
      */
-    public Status MySaveBatch(Collection<OrderDetail> entityList);
+    public Status MySaveBatch(Collection<OrderDetailPO> entityList);
 }

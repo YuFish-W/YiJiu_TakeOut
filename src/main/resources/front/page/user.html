@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,userPO-scalable=no,minimal-ui">
     <title>一酒馆</title>
     <link rel="icon" href="./../images/favico.ico">
     <!--element-ui的样式-->
@@ -13,10 +13,10 @@
     <!--引入vant样式-->
     <link rel="stylesheet" href="../styles/vant.min.css"/>
     <!--本页面内容的样式-->
-    <link rel="stylesheet" href="./../styles/user.css" />
+    <link rel="stylesheet" href="./../styles/userPO.css" />
 </head>
 <body>
-    <div id="user" class="app">
+    <div id="userPO" class="app">
         <div class="divHead">
             <div class="divTitle">
                 <i class="el-icon-arrow-left" @click="goBack"></i>个人中心
@@ -38,7 +38,7 @@
                 </div>
                 <div class="divSplit"></div>
                 <div class="item" @click="toOrderPage">
-                    <img src="./../images/orders.png"/>
+                    <img src="./../images/ordersPO.png"/>
                     <span>历史订单</span>
                     <i class="el-icon-arrow-right"></i>
                 </div>
@@ -51,7 +51,7 @@
                     <!-- <span>正在派送</span> -->
                 </div>
                 <div class="dishList">
-                    <div v-for="(item,index) in order[0].orderDetails" :key="index" class="item">
+                    <div v-for="(item,index) in order[0].orderDetailPOS" :key="index" class="item">
                         <span>{{item.name}}</span>
                         <span>x{{item.number}}</span>
                     </div>
@@ -84,7 +84,7 @@
     <script src="./../api/login.js"></script>
     <script>
         new Vue({
-            el:"#user",
+            el:"#userPO",
             data(){
                 return {
                     form:{
@@ -95,7 +95,7 @@
                     order:[{
                         orderTime:'',//下单时间
                         status:undefined,//订单状态 1已结账，2未结账，3已退单，4已完成，5已取消
-                        orderDetails:[{
+                        orderDetailPOS:[{
                             name:'',//菜品名称
                             number:undefined,//数量
                         }],//明细
@@ -135,9 +135,9 @@
                     const res = await orderPagingApi(params)
                     if(res.code === 1){
                         this.order = res.data.records
-                        if(this.order && this.order[0].orderDetails){
+                        if(this.order && this.order[0].orderDetailPOS){
                             let number = 0
-                            this.order[0].orderDetails.forEach(item=>{
+                            this.order[0].orderDetailPOS.forEach(item=>{
                                 number += item.number
                             })
                             this.order[0].sumNum = number

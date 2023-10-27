@@ -2,59 +2,59 @@ package com.yufish.yijiu.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 套餐
+ 菜品
  */
 @Data
-@ApiModel("套餐")
-public class Setmeal implements Serializable {
+public class DishPO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("主键")
     private Long id;
 
 
-    //分类id
-    @ApiModelProperty("分类id")
-    private Long categoryId;
-
-
-    //套餐名称
-    @ApiModelProperty("套餐名称")
+    //菜品名称
     private String name;
 
 
-    //套餐价格
-    @ApiModelProperty("套餐价格")
+    //菜品分类id
+    private Long categoryId;
+
+
+    //菜品价格
     private BigDecimal price;
 
 
-    //状态 0:停用 1:启用
-    @ApiModelProperty("状态")
-    private Integer status;
-
-
-    //编码
-    @ApiModelProperty("套餐编号")
+    //商品码
     private String code;
 
 
+    //图片
+    private String image;
+
+
     //描述信息
-    @ApiModelProperty("描述信息")
     private String description;
 
 
-    //图片
-    @ApiModelProperty("图片")
-    private String image;
+    //0 停售 1 起售
+    private Integer status;
+
+
+    //顺序
+    private Integer sort;
+
+    //剩余分数
+    private Integer quantity;
+
+    @Version
+    private Integer version;
 
 
     @TableField(fill = FieldFill.INSERT)

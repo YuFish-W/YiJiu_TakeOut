@@ -74,7 +74,7 @@
               size="small"
               class="blueBug"
               @click="addMemberHandle(scope.row.id)"
-              :class="{notAdmin:user !== 'admin'}"
+              :class="{notAdmin:userPO !== 'admin'}"
             >
               编辑
             </el-button>
@@ -83,7 +83,7 @@
               size="small"
               class="delBut non"
               @click="statusHandle(scope.row)"
-              v-if="user === 'admin'"
+              v-if="userPO === 'admin'"
             >
               {{ scope.row.status == '1' ? '禁用' : '启用' }}
             </el-button>
@@ -129,7 +129,7 @@
           this.init()
             if(localStorage.getItem('userInfo') != null){
                 //获取当前登录员工的账号，并赋值给模型数据user
-                this.user = JSON.parse(localStorage.getItem('userInfo')).username
+                this.userPO = JSON.parse(localStorage.getItem('userInfo')).username
             }
         },
         mounted() {

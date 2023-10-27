@@ -3,7 +3,7 @@ package com.yufish.yijiu.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yufish.yijiu.common.Result;
-import com.yufish.yijiu.entity.Category;
+import com.yufish.yijiu.entity.CategoryPO;
 import com.yufish.yijiu.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,13 @@ public class CategoryController {
 
     /**
      * 新增分类
-     * @param category
+     * @param categoryPO
      * @return
      */
     @PostMapping
-    public Result<String> save(@RequestBody Category category){
-        log.info("category:{}",category);
-        categoryService.save(category);
+    public Result<String> save(@RequestBody CategoryPO categoryPO){
+        log.info("category:{}", categoryPO);
+        categoryService.save(categoryPO);
         return Result.success("新增分类成功");
     }
 
@@ -42,11 +42,11 @@ public class CategoryController {
     @GetMapping("/page")
     public Result<Page> page(int page, int pageSize){
         //分页构造器
-        Page<Category> pageInfo = new Page<>(page,pageSize);
+        Page<CategoryPO> pageInfo = new Page<>(page,pageSize);
         //条件构造器
-        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<CategoryPO> queryWrapper = new LambdaQueryWrapper<>();
         //添加排序条件，根据sort进行排序
-        queryWrapper.orderByAsc(Category::getSort);
+        queryWrapper.orderByAsc(CategoryPO::getSort);
 
         //分页查询
         categoryService.page(pageInfo,queryWrapper);
@@ -70,33 +70,33 @@ public class CategoryController {
 
     /**
      * 根据id修改分类信息
-     * @param category
+     * @param categoryPO
      * @return
      */
     @PutMapping
-    public Result<String> update(@RequestBody Category category){
-        log.info("修改分类信息：{}",category);
+    public Result<String> update(@RequestBody CategoryPO categoryPO){
+        log.info("修改分类信息：{}", categoryPO);
 
-        categoryService.updateById(category);
+        categoryService.updateById(categoryPO);
 
         return Result.success("修改分类信息成功");
     }
 
     /**
      * 根据条件查询分类数据
-     * @param category
+     * @param categoryPO
      * @return
      */
     @GetMapping("/list")
-    public Result<List<Category>> list(Category category){
+    public Result<List<CategoryPO>> list(CategoryPO categoryPO){
         //条件构造器
-        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<CategoryPO> queryWrapper = new LambdaQueryWrapper<>();
         //添加条件
-        queryWrapper.eq(category.getType() != null,Category::getType,category.getType());
+        queryWrapper.eq(categoryPO.getType() != null, CategoryPO::getType, categoryPO.getType());
         //添加排序条件
-        queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+        queryWrapper.orderByAsc(CategoryPO::getSort).orderByDesc(CategoryPO::getUpdateTime);
 
-        List<Category> list = categoryService.list(queryWrapper);
+        List<CategoryPO> list = categoryService.list(queryWrapper);
         return Result.success(list);
     }
 }

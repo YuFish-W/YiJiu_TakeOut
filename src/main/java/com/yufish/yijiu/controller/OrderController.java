@@ -3,7 +3,7 @@ package com.yufish.yijiu.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yufish.yijiu.common.Result;
-import com.yufish.yijiu.entity.Orders;
+import com.yufish.yijiu.entity.OrdersPO;
 import com.yufish.yijiu.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,13 @@ public class OrderController {
     /**
      * 用户下单
      *
-     * @param orders
+     * @param ordersPO
      * @return
      */
     @PostMapping("/submit")
-    public Result<String> submit(@RequestBody Orders orders) {
-        log.info("订单数据：{}", orders);
-        orderService.submit(orders);
+    public Result<String> submit(@RequestBody OrdersPO ordersPO) {
+        log.info("订单数据：{}", ordersPO);
+        orderService.submit(ordersPO);
         return Result.success("下单成功");
     }
 
@@ -46,16 +46,16 @@ public class OrderController {
      * @return 返回分页对象Page
      */
     @GetMapping("/page")
-    public Result<Page<Orders>> page(int page, int pageSize, Long number, String beginTime, String endTime) {
+    public Result<Page<OrdersPO>> page(int page, int pageSize, Long number, String beginTime, String endTime) {
         //分页构造器对象
-        Page<Orders> pageInfo = new Page<>(page, pageSize);
+        Page<OrdersPO> pageInfo = new Page<>(page, pageSize);
 
-        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<OrdersPO> queryWrapper = new LambdaQueryWrapper<>();
         //找出日期在此之间的订单
-        queryWrapper.between(beginTime != null && endTime != null, Orders::getOrderTime, beginTime, endTime);
-        queryWrapper.ge(beginTime != null && endTime == null, Orders::getOrderTime, beginTime);
-        queryWrapper.le(beginTime == null && endTime != null, Orders::getOrderTime, endTime);
-        queryWrapper.like(number != null, Orders::getNumber, number);
+        queryWrapper.between(beginTime != null && endTime != null, OrdersPO::getOrderTime, beginTime, endTime);
+        queryWrapper.ge(beginTime != null && endTime == null, OrdersPO::getOrderTime, beginTime);
+        queryWrapper.le(beginTime == null && endTime != null, OrdersPO::getOrderTime, endTime);
+        queryWrapper.like(number != null, OrdersPO::getNumber, number);
 
         orderService.page(pageInfo, queryWrapper);
 
@@ -64,12 +64,12 @@ public class OrderController {
 
     /**
      * 根据传入的状态码和订单id修改订单状态
-     * @param orders
+     * @param ordersPO
      * @return
      */
     @PutMapping
-    public Result<String> modifyStatus(@RequestBody Orders orders) {
-        orderService.updateById(orders);
+    public Result<String> modifyStatus(@RequestBody OrdersPO ordersPO) {
+        orderService.updateById(ordersPO);
         return Result.success("状态修改成功");
     }
 
@@ -81,17 +81,17 @@ public class OrderController {
      * @return 返回R对象
      */
     @GetMapping("/userPage")
-    public Result<Page<Orders>> userPage(int page, int pageSize, HttpSession session) {
+    public Result<Page<OrdersPO>> userPage(int page, int pageSize, HttpSession session) {
         //获取当前用户id
         Long userId = (Long) session.getAttribute("user");
         //分页构造器对象
-        Page<Orders> pageInfo = new Page<>(page, pageSize);
+        Page<OrdersPO> pageInfo = new Page<>(page, pageSize);
 
-        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Orders::getUserId, userId);
+        LambdaQueryWrapper<OrdersPO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrdersPO::getUserId, userId);
 
         //订单按照时间顺序，倒序排列
-        queryWrapper.orderByDesc(Orders::getOrderTime);
+        queryWrapper.orderByDesc(OrdersPO::getOrderTime);
 
 
         orderService.page(pageInfo, queryWrapper);

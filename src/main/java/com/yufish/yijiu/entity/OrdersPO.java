@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * 订单
  */
 @Data
-public class Orders implements Serializable {
+public class OrdersPO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

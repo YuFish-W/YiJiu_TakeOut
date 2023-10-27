@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yufish.yijiu.common.BaseContext;
 import com.yufish.yijiu.common.Result;
-import com.yufish.yijiu.entity.Employee;
+import com.yufish.yijiu.entity.EmployeePO;
 import com.yufish.yijiu.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -23,19 +23,19 @@ public class EmployeeController {
     /**
      * 员工登录
      * @param request
-     * @param employee
+     * @param employeePO
      * @return
      */
     @PostMapping("/login")
-    public Result<Employee> login(HttpServletRequest request, @RequestBody Employee employee){
+    public Result<EmployeePO> login(HttpServletRequest request, @RequestBody EmployeePO employeePO){
         //1、将页面提交的密码password进行md5加密处理
-        String password = employee.getPassword();
+        String password = employeePO.getPassword();
         password = DigestUtils.md5DigestAsHex(password.getBytes());
 
         //2、根据页面提交的用户名username查询数据库
-        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Employee::getUsername,employee.getUsername());
-        Employee emp = employeeService.getOne(queryWrapper);
+        LambdaQueryWrapper<EmployeePO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EmployeePO::getUsername, employeePO.getUsername());
+        EmployeePO emp = employeeService.getOne(queryWrapper);
 
         //3、如果没有查询到则返回登录失败结果
         if(emp == null){
@@ -72,15 +72,15 @@ public class EmployeeController {
 
     /**
      * 新增员工
-     * @param employee
+     * @param employeePO
      * @return
      */
     @PostMapping
-    public Result<String> save(HttpServletRequest request, @RequestBody Employee employee){
-        log.info("新增员工，员工信息：{}",employee.toString());
+    public Result<String> save(HttpServletRequest request, @RequestBody EmployeePO employeePO){
+        log.info("新增员工，员工信息：{}", employeePO.toString());
 
         //设置初始密码123456，需要进行md5加密处理
-        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+        employeePO.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
         //employee.setCreateTime(LocalDateTime.now());
         //employee.setUpdateTime(LocalDateTime.now());
@@ -91,7 +91,7 @@ public class EmployeeController {
         //employee.setCreateUser(empId);
         //employee.setUpdateUser(empId);
 
-        employeeService.save(employee);
+        employeeService.save(employeePO);
 
         return Result.success("新增员工成功");
     }
@@ -111,11 +111,11 @@ public class EmployeeController {
         Page pageInfo = new Page(page,pageSize);
 
         //构造条件构造器
-        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<EmployeePO> queryWrapper = new LambdaQueryWrapper();
         //添加过滤条件
-        queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);
+        queryWrapper.like(StringUtils.isNotEmpty(name), EmployeePO::getName,name);
         //添加排序条件
-        queryWrapper.orderByDesc(Employee::getUpdateTime);
+        queryWrapper.orderByDesc(EmployeePO::getUpdateTime);
 
         //执行查询
         employeeService.page(pageInfo,queryWrapper);
@@ -125,19 +125,19 @@ public class EmployeeController {
 
     /**
      * 根据id修改员工信息
-     * @param employee
+     * @param employeePO
      * @return
      */
     @PutMapping
-    public Result<String> update(HttpServletRequest request, @RequestBody Employee employee){
-        log.info(employee.toString());
+    public Result<String> update(HttpServletRequest request, @RequestBody EmployeePO employeePO){
+        log.info(employeePO.toString());
 
         long id = Thread.currentThread().getId();
         log.info("线程id为：{}",id);
         //Long empId = (Long)request.getSession().getAttribute("employee");
         //employee.setUpdateTime(LocalDateTime.now());
         //employee.setUpdateUser(empId);
-        employeeService.updateById(employee);
+        employeeService.updateById(employeePO);
 
         return Result.success("员工信息修改成功");
     }
@@ -148,11 +148,11 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("/{id}")
-    public Result<Employee> getById(@PathVariable Long id){
+    public Result<EmployeePO> getById(@PathVariable Long id){
         log.info("根据id查询员工信息...");
-        Employee employee = employeeService.getById(id);
-        if(employee != null){
-            return Result.success(employee);
+        EmployeePO employeePO = employeeService.getById(id);
+        if(employeePO != null){
+            return Result.success(employeePO);
         }
         return Result.error("没有查询到对应员工信息");
     }
